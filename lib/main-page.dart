@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -6,6 +7,68 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  DateTime time = DateTime.now();
+  String dob = "";
+  int ageYears = 0;
+  int ageMonths = 0;
+  int ageDays = 0;
+  int nextBirthdayMonth = 0;
+  int nextBirthdayDate = 0;
+  static List<String> weekDay = [
+    "day",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+  String nextBirthdayWeekday = weekDay[0];
+
+  void getDOB(DateTime value) {
+    // print(DateFormat('dd-MM-yyyy').format(value));
+    // print(value);
+    setState(() {
+      time = value;
+      dob = DateFormat('dd MMMM, yyyy').format(time);
+      DateTime datetimenow = DateTime.now();
+      // int ageinDays = datetimenow.difference(time).inDays;
+      // print(ageinDays);
+      // ageYears = (ageinDays / 365).floor();
+      ageYears = datetimenow.year - time.year;
+      ageMonths = datetimenow.month - time.month;
+      if (ageMonths < 0) {
+        ageMonths += 12;
+        ageYears--;
+      }
+      ageDays = datetimenow.day - value.day;
+      DateTime upcomingBirthday = time.month < datetimenow.month
+          ? DateTime(datetimenow.year + 1, time.month, time.day)
+          : DateTime(datetimenow.year, time.month, time.day);
+      print(upcomingBirthday);
+      // int diff = upcomingBirthday.difference(time).inDays;
+      // print(diff);
+      nextBirthdayMonth = upcomingBirthday.month - datetimenow.month;
+
+      if (nextBirthdayMonth < 0) nextBirthdayMonth += 12;
+      // nextBirthdayMonth = (diff / 3600).floor();
+      nextBirthdayDate = (upcomingBirthday.day - datetimenow.day) + 1;
+      // nextBirthdayDate = diff % 30;
+      if (nextBirthdayDate < 0) {
+        nextBirthdayDate += 30;
+        nextBirthdayMonth--;
+      }
+      print(upcomingBirthday.weekday);
+
+      nextBirthdayWeekday = weekDay[upcomingBirthday.weekday];
+
+      // print(nextBirthdayMonth);
+      // ageMonths = (ageMonths / 30) as int;
+      // ageYears = (ageYears / 365) as int;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,35 +80,6 @@ class _MainPageState extends State<MainPage> {
         padding: const EdgeInsets.all(6.0),
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    "Date of birth",
-                    style:
-                        TextStyle(fontSize: 18.0, fontStyle: FontStyle.normal),
-                  ),
-                ],
-              ),
-            ),
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 12.0),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: <Widget>[
-            //       Text(
-            //         "Date of birth",
-            //         style: TextStyle(fontSize: 18.0),
-            //       ),
-            //       Text(
-            //         "Calender",
-            //         style: TextStyle(fontSize: 18.0),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             Container(
               height: 150.0,
               padding: EdgeInsets.all(12.0),
@@ -67,7 +101,7 @@ class _MainPageState extends State<MainPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           Text(
-                            "9 ",
+                            "$ageYears ",
                             style: TextStyle(
                                 fontSize: 52.0, fontWeight: FontWeight.bold),
                           ),
@@ -78,7 +112,7 @@ class _MainPageState extends State<MainPage> {
                         ],
                       ),
                       Text(
-                        "11 months & 9 days",
+                        "$ageMonths months & $ageDays days",
                       ),
                     ],
                   ),
@@ -99,14 +133,32 @@ class _MainPageState extends State<MainPage> {
                         size: 36.0,
                       ),
                       Text(
-                        "Sunday",
+                        "$nextBirthdayWeekday",
                         style: TextStyle(fontSize: 18.0),
                       ),
-                      Text("0 months & 22 days"),
+                      Text(
+                          "$nextBirthdayMonth months & $nextBirthdayDate days"),
                     ],
                   )
                 ],
               ),
+            ),
+            Text(
+              "$dob",
+              style: TextStyle(fontSize: 22.0, color: Colors.teal),
+            ),
+            RaisedButton(
+              child: Text("Select date of birth"),
+              color: Colors.tealAccent,
+              onPressed: () => showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime(2050),
+                cancelText: "Go Back",
+                confirmText: "Okay",
+                helpText: "SELECT YOUR BIRTHDATE",
+              ).then((value) => getDOB(value)),
             ),
           ],
         ),
